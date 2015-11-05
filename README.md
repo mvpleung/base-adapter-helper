@@ -28,6 +28,37 @@ compile 'com.joanzapata.android:base-adapter-helper:1.1.11'
 
 # Features
 
+## AbstractPagerAdapter
+
+```java
+AbstractPagerAdapter mPagerAdapter = new AbstractPagerAdapter<String>(this, R.layout.adapter_photopreview, photos) {
+
+  @Override
+   protected void convert(BaseAdapterHelper helper, String item) {
+      //TO DO
+   }
+};
+
+```
+
+## EnhancedExpandAdapter
+
+```java
+EnhancedExpandAdapter mExpandAdapter = new EnhancedExpandAdapter<String, String>(this, R.layout.adapter_group, R.layout.adapter_child, maps) {
+   @Override
+   protected void convertGroup(BaseAdapterHelper helper, String item, boolean isExpanded, boolean itemChanged) {
+       //TO DO
+   }
+
+   @Override
+   protected void convertChild(BaseAdapterHelper helper, String item, boolean itemChanged) {
+       //TO DO
+   }
+};
+
+```
+
+
 ## BaseAdapterHelper
 
 * ```setText()``` Calls ```setText(String)``` on any TextView.

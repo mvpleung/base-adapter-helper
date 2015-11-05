@@ -1,12 +1,12 @@
 /**
  * Copyright 2013 Joan Zapata
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.*;
+
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
@@ -47,16 +48,22 @@ import com.squareup.picasso.RequestCreator;
  */
 public class BaseAdapterHelper {
 
-    /** Views indexed with their IDs */
+    /**
+     * Views indexed with their IDs
+     */
     private final SparseArray<View> views;
 
     private final Context context;
 
     private int position;
 
+    private int childPosition;
+
     private View convertView;
 
-    /** Package private field to retain the associated user object and detect a change */
+    /**
+     * Package private field to retain the associated user object and detect a change
+     */
     Object associatedObject;
 
     protected BaseAdapterHelper(Context context, ViewGroup parent, int layoutId, int position) {
@@ -68,18 +75,31 @@ public class BaseAdapterHelper {
         convertView.setTag(this);
     }
 
+    protected BaseAdapterHelper(Context context, ViewGroup parent, int layoutId, int groupPosition, int childPosition) {
+        this.context = context;
+        this.position = groupPosition;
+        this.childPosition = childPosition;
+        this.views = new SparseArray<View>();
+        convertView = LayoutInflater.from(context) //
+                .inflate(layoutId, parent, false);
+        convertView.setTag(this);
+    }
+
     /**
      * This method is the only entry point to get a BaseAdapterHelper.
+     *
      * @param context     The current context.
      * @param convertView The convertView arg passed to the getView() method.
      * @param parent      The parent arg passed to the getView() method.
      * @return A BaseAdapterHelper instance.
      */
     public static BaseAdapterHelper get(Context context, View convertView, ViewGroup parent, int layoutId) {
-        return get(context, convertView, parent, layoutId, -1);
+        return get(context, convertView, parent, layoutId, -1, -1);
     }
 
-    /** This method is package private and should only be used by QuickAdapter. */
+    /**
+     * This method is package private and should only be used by QuickAdapter.
+     */
     static BaseAdapterHelper get(Context context, View convertView, ViewGroup parent, int layoutId, int position) {
         if (convertView == null) {
             return new BaseAdapterHelper(context, parent, layoutId, position);
@@ -92,10 +112,27 @@ public class BaseAdapterHelper {
     }
 
     /**
+     * This method is package private and should only be used by QuickAdapter.
+     */
+    public static BaseAdapterHelper get(Context context, View convertView, ViewGroup parent, int layoutId, int groupPosition, int childPosition) {
+        if (convertView == null) {
+            return new BaseAdapterHelper(context, parent, layoutId, groupPosition, childPosition);
+        }
+
+        // Retrieve the existing helper and update its position
+        BaseAdapterHelper existingHelper = (BaseAdapterHelper) convertView.getTag();
+        existingHelper.position = groupPosition;
+        existingHelper.childPosition = childPosition;
+        return existingHelper;
+    }
+
+
+    /**
      * This method allows you to retrieve a view and perform custom
      * operations on it, not covered by the BaseAdapterHelper.<br/>
      * If you think it's a common use case, please consider creating
      * a new issue at https://github.com/JoanZapata/base-adapter-helper/issues.
+     *
      * @param viewId The id of the view you want to retrieve.
      */
     public <T extends View> T getView(int viewId) {
@@ -104,6 +141,7 @@ public class BaseAdapterHelper {
 
     /**
      * Will set the text of a TextView.
+     *
      * @param viewId The view id.
      * @param value  The text to put in the text view.
      * @return The BaseAdapterHelper for chaining.
@@ -116,6 +154,7 @@ public class BaseAdapterHelper {
 
     /**
      * Will set the image of an ImageView from a resource id.
+     *
      * @param viewId     The view id.
      * @param imageResId The image resource id.
      * @return The BaseAdapterHelper for chaining.
@@ -128,6 +167,7 @@ public class BaseAdapterHelper {
 
     /**
      * Will set background color of a view.
+     *
      * @param viewId The view id.
      * @param color  A color, not a resource id.
      * @return The BaseAdapterHelper for chaining.
@@ -140,6 +180,7 @@ public class BaseAdapterHelper {
 
     /**
      * Will set background of a view.
+     *
      * @param viewId        The view id.
      * @param backgroundRes A resource to use as a background.
      * @return The BaseAdapterHelper for chaining.
@@ -152,6 +193,7 @@ public class BaseAdapterHelper {
 
     /**
      * Will set text color of a TextView.
+     *
      * @param viewId    The view id.
      * @param textColor The text color (not a resource id).
      * @return The BaseAdapterHelper for chaining.
@@ -164,6 +206,7 @@ public class BaseAdapterHelper {
 
     /**
      * Will set text color of a TextView.
+     *
      * @param viewId       The view id.
      * @param textColorRes The text color resource id.
      * @return The BaseAdapterHelper for chaining.
@@ -176,6 +219,7 @@ public class BaseAdapterHelper {
 
     /**
      * Will set the image of an ImageView from a drawable.
+     *
      * @param viewId   The view id.
      * @param drawable The image drawable.
      * @return The BaseAdapterHelper for chaining.
@@ -191,6 +235,7 @@ public class BaseAdapterHelper {
      * It uses Square's Picasso library to download the image asynchronously and put the result into the ImageView.<br/>
      * Picasso manages recycling of views in a ListView.<br/>
      * If you need more control over the Picasso settings, use {BaseAdapterHelper#setImageBuilder}.
+     *
      * @param viewId   The view id.
      * @param imageUrl The image URL.
      * @return The BaseAdapterHelper for chaining.
@@ -203,6 +248,7 @@ public class BaseAdapterHelper {
 
     /**
      * Will download an image from a URL and put it in an ImageView.<br/>
+     *
      * @param viewId         The view id.
      * @param requestBuilder The Picasso request builder. (e.g. Picasso.with(context).load(imageUrl))
      * @return The BaseAdapterHelper for chaining.
@@ -213,7 +259,9 @@ public class BaseAdapterHelper {
         return this;
     }
 
-    /** Add an action to set the image of an image view. Can be called multiple times. */
+    /**
+     * Add an action to set the image of an image view. Can be called multiple times.
+     */
     public BaseAdapterHelper setImageBitmap(int viewId, Bitmap bitmap) {
         ImageView view = retrieveView(viewId);
         view.setImageBitmap(bitmap);
@@ -239,6 +287,7 @@ public class BaseAdapterHelper {
 
     /**
      * Set a view visibility to VISIBLE (true) or GONE (false).
+     *
      * @param viewId  The view id.
      * @param visible True for VISIBLE, false for GONE.
      * @return The BaseAdapterHelper for chaining.
@@ -250,7 +299,21 @@ public class BaseAdapterHelper {
     }
 
     /**
+     * Set a view visibility to VISIBLE or GONE or INVISIBLE.
+     *
+     * @param viewId  The view id.
+     * @param visible visibility to VISIBLE or GONE or INVISIBLE.
+     * @return The BaseAdapterHelper for chaining.
+     */
+    public BaseAdapterHelper setVisible(int viewId, int visible) {
+        View view = retrieveView(viewId);
+        view.setVisibility(visible);
+        return this;
+    }
+
+    /**
      * Add links into a TextView.
+     *
      * @param viewId The id of the TextView to linkify.
      * @return The BaseAdapterHelper for chaining.
      */
@@ -260,7 +323,9 @@ public class BaseAdapterHelper {
         return this;
     }
 
-    /** Apply the typeface to the given viewId, and enable subpixel rendering. */
+    /**
+     * Apply the typeface to the given viewId, and enable subpixel rendering.
+     */
     public BaseAdapterHelper setTypeface(int viewId, Typeface typeface) {
         TextView view = retrieveView(viewId);
         view.setTypeface(typeface);
@@ -268,7 +333,9 @@ public class BaseAdapterHelper {
         return this;
     }
 
-    /** Apply the typeface to all the given viewIds, and enable subpixel rendering. */
+    /**
+     * Apply the typeface to all the given viewIds, and enable subpixel rendering.
+     */
     public BaseAdapterHelper setTypeface(Typeface typeface, int... viewIds) {
         for (int viewId : viewIds) {
             TextView view = retrieveView(viewId);
@@ -280,6 +347,7 @@ public class BaseAdapterHelper {
 
     /**
      * Sets the progress of a ProgressBar.
+     *
      * @param viewId   The view id.
      * @param progress The progress.
      * @return The BaseAdapterHelper for chaining.
@@ -292,6 +360,7 @@ public class BaseAdapterHelper {
 
     /**
      * Sets the progress and max of a ProgressBar.
+     *
      * @param viewId   The view id.
      * @param progress The progress.
      * @param max      The max value of a ProgressBar.
@@ -306,6 +375,7 @@ public class BaseAdapterHelper {
 
     /**
      * Sets the range of a ProgressBar to 0...max.
+     *
      * @param viewId The view id.
      * @param max    The max value of a ProgressBar.
      * @return The BaseAdapterHelper for chaining.
@@ -318,6 +388,7 @@ public class BaseAdapterHelper {
 
     /**
      * Sets the rating (the number of stars filled) of a RatingBar.
+     *
      * @param viewId The view id.
      * @param rating The rating.
      * @return The BaseAdapterHelper for chaining.
@@ -330,6 +401,7 @@ public class BaseAdapterHelper {
 
     /**
      * Sets the rating (the number of stars filled) and max of a RatingBar.
+     *
      * @param viewId The view id.
      * @param rating The rating.
      * @param max    The range of the RatingBar to 0...max.
@@ -344,6 +416,7 @@ public class BaseAdapterHelper {
 
     /**
      * Sets the on click listener of the view.
+     *
      * @param viewId   The view id.
      * @param listener The on click listener;
      * @return The BaseAdapterHelper for chaining.
@@ -356,6 +429,7 @@ public class BaseAdapterHelper {
 
     /**
      * Sets the on touch listener of the view.
+     *
      * @param viewId   The view id.
      * @param listener The on touch listener;
      * @return The BaseAdapterHelper for chaining.
@@ -368,6 +442,7 @@ public class BaseAdapterHelper {
 
     /**
      * Sets the on long click listener of the view.
+     *
      * @param viewId   The view id.
      * @param listener The on long click listener;
      * @return The BaseAdapterHelper for chaining.
@@ -380,39 +455,46 @@ public class BaseAdapterHelper {
 
     /**
      * Sets the listview or gridview's item click listener of the view
-     * @param viewId  The view id.
+     *
+     * @param viewId   The view id.
      * @param listener The item on click listener;
      * @return The BaseAdapterHelper for chaining.
      */
-    public BaseAdapterHelper setOnItemClickListener(int viewId,AdapterView.OnItemClickListener listener) {
+    public BaseAdapterHelper setOnItemClickListener(int viewId, AdapterView.OnItemClickListener listener) {
         AdapterView view = retrieveView(viewId);
         view.setOnItemClickListener(listener);
         return this;
     }
+
     /**
      * Sets the listview or gridview's item long click listener of the view
-     * @param viewId The view id.
-     * @param listener   The item long click listener;
+     *
+     * @param viewId   The view id.
+     * @param listener The item long click listener;
      * @return The BaseAdapterHelper for chaining.
      */
-    public BaseAdapterHelper setOnItemLongClickListener(int viewId,AdapterView.OnItemLongClickListener listener) {
+    public BaseAdapterHelper setOnItemLongClickListener(int viewId, AdapterView.OnItemLongClickListener listener) {
         AdapterView view = retrieveView(viewId);
         view.setOnItemLongClickListener(listener);
         return this;
     }
+
     /**
      * Sets the listview or gridview's item selected click listener of the view
-     * @param viewId The view id.
+     *
+     * @param viewId   The view id.
      * @param listener The item selected click listener;
      * @return The BaseAdapterHelper for chaining.
      */
-    public BaseAdapterHelper setOnItemSelectedClickListener(int viewId,AdapterView.OnItemSelectedListener listener) {
+    public BaseAdapterHelper setOnItemSelectedClickListener(int viewId, AdapterView.OnItemSelectedListener listener) {
         AdapterView view = retrieveView(viewId);
         view.setOnItemSelectedListener(listener);
         return this;
     }
+
     /**
      * Sets the tag of the view.
+     *
      * @param viewId The view id.
      * @param tag    The tag;
      * @return The BaseAdapterHelper for chaining.
@@ -425,6 +507,7 @@ public class BaseAdapterHelper {
 
     /**
      * Sets the tag of the view.
+     *
      * @param viewId The view id.
      * @param key    The key of tag;
      * @param tag    The tag;
@@ -438,6 +521,7 @@ public class BaseAdapterHelper {
 
     /**
      * Sets the checked status of a checkable.
+     *
      * @param viewId  The view id.
      * @param checked The checked status;
      * @return The BaseAdapterHelper for chaining.
@@ -449,7 +533,20 @@ public class BaseAdapterHelper {
     }
 
     /**
+     * Sets the selected status of a View.
+     *
+     * @param viewId   The view id.
+     * @param selected The selected status;
+     * @return The BaseAdapterHelper for chaining.
+     */
+    public BaseAdapterHelper setSelected(int viewId, boolean selected) {
+        retrieveView(viewId).setSelected(selected);
+        return this;
+    }
+
+    /**
      * Sets the adapter of a adapter view.
+     *
      * @param viewId  The view id.
      * @param adapter The adapter;
      * @return The BaseAdapterHelper for chaining.
@@ -460,13 +557,16 @@ public class BaseAdapterHelper {
         return this;
     }
 
-    /** Retrieve the convertView */
+    /**
+     * Retrieve the convertView
+     */
     public View getView() {
         return convertView;
     }
 
     /**
      * Retrieve the overall position of the data in the list.
+     *
      * @throws IllegalArgumentException If the position hasn't been set at the construction of the this helper.
      */
     public int getPosition() {
@@ -474,6 +574,19 @@ public class BaseAdapterHelper {
             throw new IllegalStateException("Use BaseAdapterHelper constructor " +
                     "with position if you need to retrieve the position.");
         return position;
+    }
+
+    /**
+     * Retrieve the overall position of the data in the list.
+     *
+     * @throws IllegalArgumentException If the position hasn't been set at the construction of the
+     *                                  this helper.
+     */
+    public int getChildPosition() {
+        if (childPosition == -1)
+            throw new IllegalStateException("Use BaseAdapterHelper constructor " +
+                    "with position if you need to retrieve the childPosition.");
+        return childPosition;
     }
 
     @SuppressWarnings("unchecked")
@@ -486,12 +599,16 @@ public class BaseAdapterHelper {
         return (T) view;
     }
 
-    /** Retrieves the last converted object on this view. */
+    /**
+     * Retrieves the last converted object on this view.
+     */
     public Object getAssociatedObject() {
         return associatedObject;
     }
 
-    /** Should be called during convert */
+    /**
+     * Should be called during convert
+     */
     public void setAssociatedObject(Object associatedObject) {
         this.associatedObject = associatedObject;
     }
